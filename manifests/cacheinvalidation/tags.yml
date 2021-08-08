@@ -1,0 +1,8 @@
+apiVersion: gotway.io/v1alpha1
+kind: CacheInvalidation
+metadata:
+  name: tags
+spec:
+  tags:
+    - "catalog"
+    - "products"
