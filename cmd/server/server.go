@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"context"
@@ -116,7 +116,7 @@ func getRedisClient(ctx context.Context, config cfg.Config) (redis.Cmdable, erro
 	return redis.New(client), nil
 }
 
-func main() {
+func Start() {
 	config, err := cfg.GetConfig()
 	if err != nil {
 		panic(fmt.Errorf("error getting config %v", err))
