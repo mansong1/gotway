@@ -8,7 +8,6 @@ import (
 	"github.com/gotway/gotway/internal/cache"
 	httpError "github.com/gotway/gotway/internal/http/error"
 	"github.com/gotway/gotway/internal/middleware"
-	"github.com/gotway/gotway/internal/model"
 	"github.com/gotway/gotway/internal/requestcontext"
 	"github.com/gotway/gotway/pkg/log"
 )
@@ -33,9 +32,9 @@ func (c *cacheIn) MiddlewareFunc(next http.Handler) http.Handler {
 		}
 
 		c.logger.Debug("checking cache")
-		cache, err := c.cacheCtrl.GetCache(r, ingress.Spec.Service.Name)
+		serviceCache, err := c.cacheCtrl.GetCache(r, ingress.Spec.Service.Name)
 		if err != nil {
-			if !errors.Is(err, model.ErrCacheNotFound) {
+			if !errors.Is(err, cache.ErrCacheNotFound) {
 				c.logger.Error(err)
 			}
 			next.ServeHTTP(w, r)
@@ -43,11 +42,11 @@ func (c *cacheIn) MiddlewareFunc(next http.Handler) http.Handler {
 		}
 
 		c.logger.Debug("cached response")
-		for key, header := range cache.Headers {
+		for key, header := range serviceCache.Headers {
 			w.Header().Set(key, strings.Join(header[:], ","))
 		}
-		w.WriteHeader(cache.StatusCode)
-		w.Write(cache.Body)
+		w.WriteHeader(serviceCache.StatusCode)
+		w.Write(serviceCache.Body)
 	})
 }
 

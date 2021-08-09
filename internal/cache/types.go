@@ -1,4 +1,4 @@
-package model
+package cache
 
 import (
 	"encoding/json"
@@ -32,14 +32,14 @@ func NewCacheTTL(seconds int64) CacheTTL {
 	return CacheTTL(time.Duration(seconds) * time.Second)
 }
 
-// DeleteCache defines the params used to delete cache
-type DeleteCache struct {
+// CacheInvalidation defines the params used to delete cache
+type CacheInvalidation struct {
 	Paths []CachePath `json:"paths"`
 	Tags  []string    `json:"tags"`
 }
 
 // Validate checks if the payload is valid
-func (p DeleteCache) Validate() error {
+func (p CacheInvalidation) Validate() error {
 	if len(p.Paths) == 0 && len(p.Tags) == 0 {
 		return ErrInvalidDeleteCache
 	}

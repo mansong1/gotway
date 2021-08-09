@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/gotway/gotway/internal/model"
+	"github.com/gotway/gotway/internal/cache"
 	kubeCtrl "github.com/gotway/gotway/pkg/kubernetes/controller"
 	"github.com/gotway/gotway/pkg/log"
 )
@@ -12,10 +12,10 @@ import (
 func Handle(err error, w http.ResponseWriter, logger log.Logger) {
 	logger.Error(err)
 	badRequestErrors := []error{
-		model.ErrInvalidDeleteCache,
+		cache.ErrInvalidDeleteCache,
 	}
 	notFoundErrors := []error{
-		model.ErrCacheNotFound,
+		cache.ErrCacheNotFound,
 		kubeCtrl.ErrIngressNotFound,
 	}
 	for _, e := range badRequestErrors {

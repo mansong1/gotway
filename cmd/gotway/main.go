@@ -16,7 +16,6 @@ import (
 	cacheMw "github.com/gotway/gotway/internal/middleware/cache"
 	gatewayMw "github.com/gotway/gotway/internal/middleware/gateway"
 	matchingressMw "github.com/gotway/gotway/internal/middleware/matchingress"
-	"github.com/gotway/gotway/internal/repository"
 	kubeCtrl "github.com/gotway/gotway/pkg/kubernetes/controller"
 	clientsetv1alpha1 "github.com/gotway/gotway/pkg/kubernetes/crd/v1alpha1/apis/clientset/versioned"
 	"github.com/gotway/gotway/pkg/log"
@@ -149,7 +148,7 @@ func main() {
 		logger.WithField("type", "kubernetes"),
 	)
 
-	cacheRepo := repository.NewCacheRepoRedis(redisClient)
+	cacheRepo := cache.NewCacheRepoRedis(redisClient)
 	cacheCtrl := cache.NewController(
 		cache.Options{
 			NumWorkers: config.Cache.NumWorkers,

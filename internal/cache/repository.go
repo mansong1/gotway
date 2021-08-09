@@ -1,4 +1,4 @@
-package repository
+package cache
 
 import (
 	"context"
@@ -9,14 +9,13 @@ import (
 	"time"
 
 	goRedis "github.com/go-redis/redis/v8"
-	"github.com/gotway/gotway/internal/model"
 	"github.com/gotway/gotway/pkg/redis"
 )
 
 type CacheRepo interface {
-	Create(cache model.Cache, serviceKey string) error
-	Get(path string, serviceKey string) (model.Cache, error)
-	DeleteByPath(paths []model.CachePath) error
+	Create(cache Cache, serviceKey string) error
+	Get(path string, serviceKey string) (Cache, error)
+	DeleteByPath(paths []CachePath) error
 	DeleteByTags(tags []string) error
 }
 
@@ -29,7 +28,7 @@ type CacheRepoRedis struct {
 	redis redis.Cmdable
 }
 
-func (r CacheRepoRedis) Create(cache model.Cache, serviceKey string) error {
+func (r CacheRepoRedis) Create(cache Cache, serviceKey string) error {
 	bytes, err := json.Marshal(cache)
 	if err != nil {
 		return err
@@ -52,23 +51,23 @@ func (r CacheRepoRedis) Create(cache model.Cache, serviceKey string) error {
 }
 
 // Get gets a cache
-func (r CacheRepoRedis) Get(path string, serviceKey string) (model.Cache, error) {
+func (r CacheRepoRedis) Get(path string, serviceKey string) (Cache, error) {
 	cacheKey := getCacheRedisKey(path, serviceKey)
 
 	result, err := r.redis.Get(ctx, cacheKey).Result()
 	if err != nil {
-		return model.Cache{}, redisCacheError(err)
+		return Cache{}, redisCacheError(err)
 	}
 
-	var cache model.Cache
+	var cache Cache
 	if err := json.Unmarshal([]byte(result), &cache); err != nil {
-		return model.Cache{}, err
+		return Cache{}, err
 	}
 	return cache, nil
 }
 
 // DeleteByPath deletes caches by specifying its path
-func (r CacheRepoRedis) DeleteByPath(paths []model.CachePath) error {
+func (r CacheRepoRedis) DeleteByPath(paths []CachePath) error {
 	cacheKeys := make([]string, len(paths))
 	for index, item := range paths {
 		cacheKeys[index] = getCacheRedisKey(item.Path, item.Service)
@@ -79,7 +78,7 @@ func (r CacheRepoRedis) DeleteByPath(paths []model.CachePath) error {
 		return err
 	}
 	if !ok && notFoundIndex >= 0 {
-		return &model.ErrCachePathNotFound{
+		return &ErrCachePathNotFound{
 			CachePath: paths[notFoundIndex],
 		}
 	}
@@ -168,7 +167,7 @@ func redisCacheError(err error) error {
 		return nil
 	}
 	if err == goRedis.Nil {
-		return model.ErrCacheNotFound
+		return ErrCacheNotFound
 	}
 	return err
 }

@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	model "github.com/gotway/gotway/internal/model"
+	cache "github.com/gotway/gotway/internal/cache"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -12,13 +12,13 @@ type CacheRepo struct {
 	mock.Mock
 }
 
-// Create provides a mock function with given fields: cache, serviceKey
-func (_m *CacheRepo) Create(cache model.Cache, serviceKey string) error {
-	ret := _m.Called(cache, serviceKey)
+// Create provides a mock function with given fields: _a0, serviceKey
+func (_m *CacheRepo) Create(_a0 cache.Cache, serviceKey string) error {
+	ret := _m.Called(_a0, serviceKey)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(model.Cache, string) error); ok {
-		r0 = rf(cache, serviceKey)
+	if rf, ok := ret.Get(0).(func(cache.Cache, string) error); ok {
+		r0 = rf(_a0, serviceKey)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -27,11 +27,11 @@ func (_m *CacheRepo) Create(cache model.Cache, serviceKey string) error {
 }
 
 // DeleteByPath provides a mock function with given fields: paths
-func (_m *CacheRepo) DeleteByPath(paths []model.CachePath) error {
+func (_m *CacheRepo) DeleteByPath(paths []cache.CachePath) error {
 	ret := _m.Called(paths)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func([]model.CachePath) error); ok {
+	if rf, ok := ret.Get(0).(func([]cache.CachePath) error); ok {
 		r0 = rf(paths)
 	} else {
 		r0 = ret.Error(0)
@@ -55,14 +55,14 @@ func (_m *CacheRepo) DeleteByTags(tags []string) error {
 }
 
 // Get provides a mock function with given fields: path, serviceKey
-func (_m *CacheRepo) Get(path string, serviceKey string) (model.Cache, error) {
+func (_m *CacheRepo) Get(path string, serviceKey string) (cache.Cache, error) {
 	ret := _m.Called(path, serviceKey)
 
-	var r0 model.Cache
-	if rf, ok := ret.Get(0).(func(string, string) model.Cache); ok {
+	var r0 cache.Cache
+	if rf, ok := ret.Get(0).(func(string, string) cache.Cache); ok {
 		r0 = rf(path, serviceKey)
 	} else {
-		r0 = ret.Get(0).(model.Cache)
+		r0 = ret.Get(0).(cache.Cache)
 	}
 
 	var r1 error

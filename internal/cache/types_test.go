@@ -1,4 +1,4 @@
-package model
+package cache
 
 import (
 	"testing"
@@ -9,12 +9,12 @@ import (
 func TestDeleteValidate(t *testing.T) {
 	tests := []struct {
 		name    string
-		delete  DeleteCache
+		delete  CacheInvalidation
 		wantErr error
 	}{
 		{
 			name: "Validate empty delete",
-			delete: DeleteCache{
+			delete: CacheInvalidation{
 				Paths: []CachePath{},
 				Tags:  []string{},
 			},
@@ -22,7 +22,7 @@ func TestDeleteValidate(t *testing.T) {
 		},
 		{
 			name: "Validate delete with paths and tags",
-			delete: DeleteCache{
+			delete: CacheInvalidation{
 				Paths: []CachePath{
 					{
 						Service: "catalog",
@@ -35,7 +35,7 @@ func TestDeleteValidate(t *testing.T) {
 		},
 		{
 			name: "Validate valid delete",
-			delete: DeleteCache{
+			delete: CacheInvalidation{
 				Tags: []string{"catalog"},
 			},
 			wantErr: nil,

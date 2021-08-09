@@ -13,7 +13,6 @@ import (
 
 	"github.com/gotway/gotway/internal/cache"
 	"github.com/gotway/gotway/internal/mocks"
-	"github.com/gotway/gotway/internal/model"
 	"github.com/gotway/gotway/pkg/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -64,7 +63,7 @@ func TestGetCache(t *testing.T) {
 
 	reqCacheError, _ := http.NewRequest(http.MethodGet, "http://api.gotway.com/foo", nil)
 	cacheError := errors.New("Cache not found")
-	cacheRepo.On("Get", "/foo", "service").Return(model.Cache{}, cacheError)
+	cacheRepo.On("Get", "/foo", "service").Return(cache.Cache{}, cacheError)
 
 	reqSuccess, _ := http.NewRequest(http.MethodGet, "http://api.gotway.com/products", nil)
 	reqPrefix, _ := http.NewRequest(
@@ -72,40 +71,40 @@ func TestGetCache(t *testing.T) {
 		"http://api.gotway.com/products",
 		nil,
 	)
-	cache := model.Cache{
+	c := cache.Cache{
 		Path:       "/products",
 		StatusCode: 200,
 		TTL:        10,
 		Tags:       []string{"foo"},
 	}
-	cacheRepo.On("Get", "/products", "catalog").Return(cache, nil)
+	cacheRepo.On("Get", "/products", "catalog").Return(c, nil)
 
 	tests := []struct {
 		name      string
 		req       *http.Request
 		service   string
-		wantCache model.Cache
+		wantCache cache.Cache
 		wantErr   error
 	}{
 		{
 			name:      "Cache detail not found error",
 			req:       reqCacheError,
 			service:   "service",
-			wantCache: model.Cache{},
+			wantCache: cache.Cache{},
 			wantErr:   cacheError,
 		},
 		{
 			name:      "Get cache successfully",
 			req:       reqSuccess,
 			service:   "catalog",
-			wantCache: cache,
+			wantCache: c,
 			wantErr:   nil,
 		},
 		{
 			name:      "Get cache successfully",
 			req:       reqPrefix,
 			service:   "catalog",
-			wantCache: cache,
+			wantCache: c,
 			wantErr:   nil,
 		},
 	}
@@ -124,7 +123,7 @@ func TestDeleteCacheByPath(t *testing.T) {
 	cacheRepo := new(mocks.CacheRepo)
 	controller := cache.NewController(cache.Options{10, 10}, cacheRepo, log.Log)
 
-	paths := []model.CachePath{
+	paths := []cache.CachePath{
 		{
 			Service: "service",
 			Path:    "foo",

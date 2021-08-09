@@ -9,8 +9,6 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/gotway/gotway/internal/model"
-	"github.com/gotway/gotway/internal/repository"
 	"github.com/gotway/gotway/pkg/log"
 	"github.com/pquerna/cachecontrol/cacheobject"
 )
@@ -32,8 +30,8 @@ type Controller interface {
 	HandleResponse(r *http.Response, params Params) error
 	IsCacheableRequest(r *http.Request) bool
 	IsCacheableResponse(r *http.Response, params Params) bool
-	GetCache(r *http.Request, service string) (model.Cache, error)
-	DeleteCacheByPath(paths []model.CachePath) error
+	GetCache(r *http.Request, service string) (Cache, error)
+	DeleteCacheByPath(paths []CachePath) error
 	DeleteCacheByTags(tags []string) error
 }
 
@@ -45,7 +43,7 @@ type response struct {
 
 type BasicController struct {
 	options      Options
-	cacheRepo    repository.CacheRepo
+	cacheRepo    CacheRepo
 	pendingCache chan response
 	logger       log.Logger
 }
@@ -116,16 +114,16 @@ func (c BasicController) IsCacheableResponse(r *http.Response, params Params) bo
 }
 
 // GetCache gets a cached response for a request and a service
-func (c BasicController) GetCache(r *http.Request, service string) (model.Cache, error) {
+func (c BasicController) GetCache(r *http.Request, service string) (Cache, error) {
 	cache, err := c.cacheRepo.Get(r.URL.Path, service)
 	if err != nil {
-		return model.Cache{}, err
+		return Cache{}, err
 	}
 	return cache, nil
 }
 
 // DeleteCacheByPath deletes cache defined by its path
-func (c BasicController) DeleteCacheByPath(paths []model.CachePath) error {
+func (c BasicController) DeleteCacheByPath(paths []CachePath) error {
 	return c.cacheRepo.DeleteByPath(paths)
 }
 
@@ -139,7 +137,7 @@ func (c BasicController) cacheResponse(res response) error {
 	ttl := getTTL(res.httpResponse, res.params)
 	tags := getTags(res.httpResponse, res.params)
 
-	cache := model.Cache{
+	cache := Cache{
 		Path:       path,
 		StatusCode: res.httpResponse.StatusCode,
 		Headers:    res.httpResponse.Header,
@@ -159,7 +157,7 @@ func getPath(r *http.Request) string {
 	return path
 }
 
-func getTTL(r *http.Response, params Params) model.CacheTTL {
+func getTTL(r *http.Response, params Params) CacheTTL {
 	ttl, err := getCacheTTLHeader(r)
 	var seconds int64
 	if err != nil {
@@ -167,7 +165,7 @@ func getTTL(r *http.Response, params Params) model.CacheTTL {
 	} else {
 		seconds = ttl
 	}
-	return model.NewCacheTTL(seconds)
+	return NewCacheTTL(seconds)
 }
 
 func getTags(r *http.Response, params Params) []string {
@@ -209,7 +207,7 @@ func headersDisallowCaching(r *http.Response) bool {
 
 func NewController(
 	options Options,
-	cacheRepo repository.CacheRepo,
+	cacheRepo CacheRepo,
 	logger log.Logger,
 ) Controller {
 	return &BasicController{

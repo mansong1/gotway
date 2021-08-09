@@ -6,10 +6,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gorilla/mux"
 	"github.com/gotway/gotway/internal/cache"
 	httpError "github.com/gotway/gotway/internal/http/error"
-	"github.com/gotway/gotway/internal/model"
 	"github.com/gotway/gotway/internal/requestcontext"
 	"github.com/gotway/gotway/pkg/log"
 
@@ -35,10 +33,10 @@ func (h *handler) getIngresses(w http.ResponseWriter, r *http.Request) {
 func (h *handler) deleteCache(w http.ResponseWriter, r *http.Request) {
 	decoded := json.NewDecoder(r.Body)
 
-	var payload model.DeleteCache
+	var payload cache.CacheInvalidation
 	err := decoded.Decode(&payload)
 	if err != nil {
-		http.Error(w, model.ErrInvalidDeleteCache.Error(), http.StatusBadRequest)
+		http.Error(w, cache.ErrInvalidDeleteCache.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -51,7 +49,7 @@ func (h *handler) deleteCache(w http.ResponseWriter, r *http.Request) {
 	if len(payload.Paths) > 0 {
 		err := h.cacheCtrl.DeleteCacheByPath(payload.Paths)
 		if err != nil {
-			if _, ok := err.(*model.ErrCachePathNotFound); ok {
+			if _, ok := err.(*cache.ErrCachePathNotFound); ok {
 				http.Error(w, err.Error(), http.StatusNotFound)
 				return
 			}
@@ -90,11 +88,6 @@ func (h *handler) writeResponse(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(res.StatusCode)
 	w.Write(bytes)
-}
-
-func getServiceKey(r *http.Request) string {
-	params := mux.Vars(r)
-	return params["service"]
 }
 
 func newHandler(
