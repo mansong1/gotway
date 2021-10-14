@@ -1,5 +1,5 @@
 PROJECT := gotway
-VERSION := $(git describe --abbrev=0 --tags)
+VERSION := <+execution.steps.Get_Tags.output.outputVariables.VERSION>
 LD_FLAGS := -X main.version=$(VERSION) -s -w
 SOURCE_FILES ?= ./internal/... ./pkg/... ./cmd/...
 UNAME := $(uname -s)
