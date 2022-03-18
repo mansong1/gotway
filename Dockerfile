@@ -10,7 +10,7 @@ COPY . .
 
 RUN make build
 
-FROM alpine:latest
+FROM alpine:3.15
 
 COPY --from=builder /go/src/gotway/bin/gotway /gotway
 
